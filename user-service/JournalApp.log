@@ -87,9 +87,9 @@ Caused by: java.sql.SQLSyntaxErrorException: Incorrect table definition; there c
 25-08-23 04::06::721 [main] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration =spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning  
 25-08-23 04::06::795 [main] INFO  o.s.v.b.OptionalValidatorFactoryBean =Failed to set up a Bean Validation provider: jakarta.validation.NoProviderFoundException: Unable to create a Configuration, because no Jakarta Bean Validation provider could be found. Add a provider like Hibernate Validator (RI) to your classpath.  
 25-08-23 04::06::888 [main] WARN  o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext =Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'requestMappingHandlerMapping' defined in class path resource [org/springframework/boot/autoconfigure/web/servlet/WebMvcAutoConfiguration$EnableWebMvcConfiguration.class]: Ambiguous mapping. Cannot map 'userControllerImpl' method 
-io.github.nitishc.grievance.user_service.controller.controllerImpl.UserControllerImpl#getUserByEmail(String, HttpServletRequest)
+io.github.nitishc.grievance.user_service.controller.UserController#getUserByEmail(String, HttpServletRequest)
 to {GET [/user/user/{email}]}: There is already 'userControllerImpl' bean method
-io.github.nitishc.grievance.user_service.controller.controllerImpl.UserControllerImpl#updateUser(String, RequestUserDto, HttpServletRequest) mapped.  
+io.github.nitishc.grievance.user_service.controller.UserController#updateUser(String, RequestUserDto, HttpServletRequest) mapped.
 25-08-23 04::06::890 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean =Closing JPA EntityManagerFactory for persistence unit 'default'  
 25-08-23 04::06::894 [main] INFO  com.zaxxer.hikari.HikariDataSource =HikariPool-1 - Shutdown initiated...  
 25-08-23 04::06::913 [main] INFO  com.zaxxer.hikari.HikariDataSource =HikariPool-1 - Shutdown completed.  
@@ -99,9 +99,9 @@ io.github.nitishc.grievance.user_service.controller.controllerImpl.UserControlle
 Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.  
 25-08-23 04::06::988 [main] ERROR o.s.boot.SpringApplication =Application run failed  
 org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'requestMappingHandlerMapping' defined in class path resource [org/springframework/boot/autoconfigure/web/servlet/WebMvcAutoConfiguration$EnableWebMvcConfiguration.class]: Ambiguous mapping. Cannot map 'userControllerImpl' method 
-io.github.nitishc.grievance.user_service.controller.controllerImpl.UserControllerImpl#getUserByEmail(String, HttpServletRequest)
+io.github.nitishc.grievance.user_service.controller.UserController#getUserByEmail(String, HttpServletRequest)
 to {GET [/user/user/{email}]}: There is already 'userControllerImpl' bean method
-io.github.nitishc.grievance.user_service.controller.controllerImpl.UserControllerImpl#updateUser(String, RequestUserDto, HttpServletRequest) mapped.
+io.github.nitishc.grievance.user_service.controller.UserController#updateUser(String, RequestUserDto, HttpServletRequest) mapped.
 	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1826)
 	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:607)
 	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:529)
@@ -122,9 +122,9 @@ io.github.nitishc.grievance.user_service.controller.controllerImpl.UserControlle
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1350)
 	at io.github.nitishc.grievance.user_service.UserServiceApplication.main(UserServiceApplication.java:14)
 Caused by: java.lang.IllegalStateException: Ambiguous mapping. Cannot map 'userControllerImpl' method 
-io.github.nitishc.grievance.user_service.controller.controllerImpl.UserControllerImpl#getUserByEmail(String, HttpServletRequest)
+io.github.nitishc.grievance.user_service.controller.UserController#getUserByEmail(String, HttpServletRequest)
 to {GET [/user/user/{email}]}: There is already 'userControllerImpl' bean method
-io.github.nitishc.grievance.user_service.controller.controllerImpl.UserControllerImpl#updateUser(String, RequestUserDto, HttpServletRequest) mapped.
+io.github.nitishc.grievance.user_service.controller.UserController#updateUser(String, RequestUserDto, HttpServletRequest) mapped.
 	at org.springframework.web.servlet.handler.AbstractHandlerMethodMapping$MappingRegistry.validateMethodMapping(AbstractHandlerMethodMapping.java:676)
 	at org.springframework.web.servlet.handler.AbstractHandlerMethodMapping$MappingRegistry.register(AbstractHandlerMethodMapping.java:637)
 	at org.springframework.web.servlet.handler.AbstractHandlerMethodMapping.registerHandlerMethod(AbstractHandlerMethodMapping.java:331)
@@ -170,9 +170,9 @@ io.github.nitishc.grievance.user_service.controller.controllerImpl.UserControlle
 25-08-23 04::10::466 [main] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration =spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning  
 25-08-23 04::10::552 [main] INFO  o.s.v.b.OptionalValidatorFactoryBean =Failed to set up a Bean Validation provider: jakarta.validation.NoProviderFoundException: Unable to create a Configuration, because no Jakarta Bean Validation provider could be found. Add a provider like Hibernate Validator (RI) to your classpath.  
 25-08-23 04::10::659 [main] WARN  o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext =Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'requestMappingHandlerMapping' defined in class path resource [org/springframework/boot/autoconfigure/web/servlet/WebMvcAutoConfiguration$EnableWebMvcConfiguration.class]: Ambiguous mapping. Cannot map 'userControllerImpl' method 
-io.github.nitishc.grievance.user_service.controller.controllerImpl.UserControllerImpl#getUserByEmail(String, HttpServletRequest)
+io.github.nitishc.grievance.user_service.controller.UserController#getUserByEmail(String, HttpServletRequest)
 to {GET [/user/user/{email}]}: There is already 'userControllerImpl' bean method
-io.github.nitishc.grievance.user_service.controller.controllerImpl.UserControllerImpl#updateUser(String, RequestUserDto, HttpServletRequest) mapped.  
+io.github.nitishc.grievance.user_service.controller.UserController#updateUser(String, RequestUserDto, HttpServletRequest) mapped.
 25-08-23 04::10::660 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean =Closing JPA EntityManagerFactory for persistence unit 'default'  
 25-08-23 04::10::664 [main] INFO  com.zaxxer.hikari.HikariDataSource =HikariPool-1 - Shutdown initiated...  
 25-08-23 04::10::678 [main] INFO  com.zaxxer.hikari.HikariDataSource =HikariPool-1 - Shutdown completed.  
@@ -182,9 +182,9 @@ io.github.nitishc.grievance.user_service.controller.controllerImpl.UserControlle
 Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.  
 25-08-23 04::10::770 [main] ERROR o.s.boot.SpringApplication =Application run failed  
 org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'requestMappingHandlerMapping' defined in class path resource [org/springframework/boot/autoconfigure/web/servlet/WebMvcAutoConfiguration$EnableWebMvcConfiguration.class]: Ambiguous mapping. Cannot map 'userControllerImpl' method 
-io.github.nitishc.grievance.user_service.controller.controllerImpl.UserControllerImpl#getUserByEmail(String, HttpServletRequest)
+io.github.nitishc.grievance.user_service.controller.UserController#getUserByEmail(String, HttpServletRequest)
 to {GET [/user/user/{email}]}: There is already 'userControllerImpl' bean method
-io.github.nitishc.grievance.user_service.controller.controllerImpl.UserControllerImpl#updateUser(String, RequestUserDto, HttpServletRequest) mapped.
+io.github.nitishc.grievance.user_service.controller.UserController#updateUser(String, RequestUserDto, HttpServletRequest) mapped.
 	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1826)
 	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:607)
 	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:529)
@@ -205,9 +205,9 @@ io.github.nitishc.grievance.user_service.controller.controllerImpl.UserControlle
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1350)
 	at io.github.nitishc.grievance.user_service.UserServiceApplication.main(UserServiceApplication.java:14)
 Caused by: java.lang.IllegalStateException: Ambiguous mapping. Cannot map 'userControllerImpl' method 
-io.github.nitishc.grievance.user_service.controller.controllerImpl.UserControllerImpl#getUserByEmail(String, HttpServletRequest)
+io.github.nitishc.grievance.user_service.controller.UserController#getUserByEmail(String, HttpServletRequest)
 to {GET [/user/user/{email}]}: There is already 'userControllerImpl' bean method
-io.github.nitishc.grievance.user_service.controller.controllerImpl.UserControllerImpl#updateUser(String, RequestUserDto, HttpServletRequest) mapped.
+io.github.nitishc.grievance.user_service.controller.UserController#updateUser(String, RequestUserDto, HttpServletRequest) mapped.
 	at org.springframework.web.servlet.handler.AbstractHandlerMethodMapping$MappingRegistry.validateMethodMapping(AbstractHandlerMethodMapping.java:676)
 	at org.springframework.web.servlet.handler.AbstractHandlerMethodMapping$MappingRegistry.register(AbstractHandlerMethodMapping.java:637)
 	at org.springframework.web.servlet.handler.AbstractHandlerMethodMapping.registerHandlerMethod(AbstractHandlerMethodMapping.java:331)

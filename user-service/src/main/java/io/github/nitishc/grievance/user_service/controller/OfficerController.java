@@ -1,21 +1,73 @@
 package io.github.nitishc.grievance.user_service.controller;
 
-import io.github.nitishc.grievance.user_service.dto.RequestOfficerDto;
-import io.github.nitishc.grievance.user_service.dto.ResponseOfficerDto;
+import io.github.nitishc.grievance.user_service.dto.OfficerResponse;
+import io.github.nitishc.grievance.user_service.dto.OfficerSignupRequest;
+import io.github.nitishc.grievance.user_service.dto.OfficerLoginRequest;
 import io.github.nitishc.grievance.user_service.exception.UserNotDeletedException;
 import io.github.nitishc.grievance.user_service.exception.UserNotFoundException;
 import io.github.nitishc.grievance.user_service.exception.UserNotSavedException;
+import io.github.nitishc.grievance.user_service.service.OfficerService;
 import io.github.nitishc.grievance.user_service.util.ResponseInfo;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
-public interface OfficerController {
-    public ResponseEntity<ResponseInfo<ResponseOfficerDto>> addOfficer(RequestOfficerDto officerDto, HttpServletRequest request) throws UserNotSavedException;
+@RestController
+@RequestMapping("/officer")
+@Slf4j
+public class OfficerController {
 
-    public ResponseEntity<ResponseInfo<ResponseOfficerDto>> getOfficerByEmail(String email, HttpServletRequest request) throws UserNotFoundException;
-    public ResponseEntity<ResponseInfo<ResponseOfficerDto>> getOfficerByPhone(String phone, HttpServletRequest request) throws UserNotFoundException;
+    private final OfficerService officerService;
 
-    public ResponseEntity<ResponseInfo<ResponseOfficerDto>> updateOfficer(String email, RequestOfficerDto user, HttpServletRequest request) throws UserNotFoundException, UserNotSavedException;
+    @Autowired
+    public OfficerController(OfficerService officerService){
+        this.officerService= officerService;
+    }
 
-    public ResponseEntity<ResponseInfo<String>> deleteOfficer(String email, HttpServletRequest request) throws UserNotFoundException, UserNotDeletedException;
+    @PostMapping("/save")
+    public ResponseEntity<ResponseInfo<String>> addOfficer(@Validated @RequestBody OfficerSignupRequest officerDto,
+                                                                        HttpServletRequest request) throws UserNotSavedException {
+        log.info("Request Received to save new officer record");
+
+        officerService.signupOfficer(officerDto);
+
+        ResponseInfo<String> responseInfo= new ResponseInfo<>(HttpStatus.ACCEPTED.value(), HttpStatus.ACCEPTED.name(),
+                "Officer's Record Added.", request.getRequestURI());
+        return new ResponseEntity<>(responseInfo, HttpStatus.ACCEPTED);
+
+    }
+    @GetMapping("/show-profile/{email}")
+    public ResponseEntity<ResponseInfo<OfficerResponse>> getOfficerByEmail(@PathVariable("email") String email,
+                                                                               HttpServletRequest request) throws UserNotFoundException {
+        log.info("Request received to fetch record of via email: {}",email);
+        OfficerResponse officerDto= officerService.OfficerProfile(email);
+        ResponseInfo<OfficerResponse> responseInfo= new ResponseInfo<>(HttpStatus.ACCEPTED.value(), HttpStatus.ACCEPTED.name(),
+                officerDto, request.getRequestURI());
+        return new ResponseEntity<>(responseInfo, HttpStatus.ACCEPTED);
+    }
+
+    @PatchMapping("/update")
+    public ResponseEntity<ResponseInfo<OfficerResponse>> updateOfficer(@PathVariable("email") String email, @RequestBody OfficerSignupRequest officer,
+                                                                       HttpServletRequest request) throws UserNotFoundException, UserNotSavedException {
+        log.info("User with email: {}, requested to update record", email);
+        OfficerResponse officerDto= officerService.updateOfficer(email, officer);
+        ResponseInfo<OfficerResponse> responseInfo= new ResponseInfo<>(HttpStatus.ACCEPTED.value(), HttpStatus.ACCEPTED.name(),
+                officerDto, request.getRequestURI());
+        return new ResponseEntity<>(responseInfo, HttpStatus.ACCEPTED);
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<ResponseInfo<String>> deleteOfficer(@PathVariable("email") String email,
+                                                              HttpServletRequest request) throws UserNotFoundException, UserNotDeletedException {
+        log.info("User with email: {}, requested to delete record",email);
+        officerService.deleteOfficer(email);
+        ResponseInfo<String> responseInfo= new ResponseInfo<>(HttpStatus.ACCEPTED.value(), HttpStatus.ACCEPTED.name(),
+                "Record Deleted", request.getRequestURI());
+        return new ResponseEntity<>(responseInfo, HttpStatus.ACCEPTED);
+    }
 }
