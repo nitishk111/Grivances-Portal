@@ -7,6 +7,7 @@ import io.github.nitishc.grievance.user_service.exception.UserNotFoundException;
 import io.github.nitishc.grievance.user_service.exception.UserNotSavedException;
 import io.github.nitishc.grievance.user_service.model.User;
 import io.github.nitishc.grievance.user_service.repository.UserRepository;
+import io.github.nitishc.grievance.user_service.util.UserMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,15 +17,13 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class UserService {
 
-    private final UserRepository userRepo;
-
     @Autowired
-    public UserService(UserRepository userRepo){
-        this.userRepo = userRepo;
-    }
+    private UserRepository userRepo;
+    @Autowired
+    private UserMapper mapper;
 
-    public void userSignup(UserSignupRequest userDto) throws UserNotSavedException {
-        User user= new User(userDto.getName(),userDto.getPassword(), userDto.getEmail(), userDto.getPhone());
+    public UserResponse userSignup(UserSignupRequest userDto) throws UserNotSavedException {
+        User user= mapper.toEntity(userDto);
         User savedUser;
         try{
             savedUser= userRepo.save(user);
@@ -33,7 +32,7 @@ public class UserService {
             throw new UserNotSavedException(e.getMessage());
         }
         log.info("User Added");
-//        return new UserLoginRequest(savedUser.getEmail(), savedUser.getName(), savedUser.getPhone());
+        return mapper.toDto(savedUser);
     }
 
     public UserResponse userProfile(String email) throws UserNotFoundException {
@@ -49,7 +48,7 @@ public class UserService {
             throw new UserNotFoundException(e.getMessage());
         }
         log.info("User Record with email: {} found", email);
-        return new UserResponse(user.getEmail(), user.getFullName(), user.getPhone());
+        return mapper.toDto(user);
     }
 
 
@@ -57,7 +56,7 @@ public class UserService {
         User existingUser= userRepo.findByEmail(email); //getUserByEmail(email);
         existingUser.setEmail(user.getEmail() !=null && !user.getEmail().isEmpty() ? user.getEmail(): existingUser.getEmail());
         existingUser.setPhone(user.getPhone() !=null && !user.getPhone().isEmpty() ? user.getPhone(): existingUser.getPhone());
-        existingUser.setFullName(user.getName() !=null && !user.getName().isEmpty() ? user.getName(): existingUser.getFullName());
+        existingUser.setFullName(user.getFullName() !=null && !user.getFullName().isEmpty() ? user.getFullName(): existingUser.getFullName());
         existingUser.setPassword(user.getPassword() !=null && !user.getPassword().isEmpty() ? user.getPassword(): existingUser.getPassword());
 
         try{
@@ -67,12 +66,11 @@ public class UserService {
             throw new UserNotSavedException(e.getMessage());
         }
         log.info("Record updated Successfully");
-        return new UserResponse(existingUser.getEmail(), existingUser.getFullName(), existingUser.getPhone());
+        return mapper.toDto(existingUser);
     }
 
     public String deleteUser(String email) throws UserNotFoundException, UserNotDeletedException {
-        User user= userRepo.findByEmail(email) ;//getUserByEmail(userDto.getEmail());
-
+        User user= userRepo.findByEmail(email);
         try{
             userRepo.delete(user);
         }catch (Exception e){

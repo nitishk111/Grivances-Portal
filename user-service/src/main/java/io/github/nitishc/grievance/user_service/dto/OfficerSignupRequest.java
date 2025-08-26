@@ -1,7 +1,7 @@
 package io.github.nitishc.grievance.user_service.dto;
 
-import io.github.nitishc.grievance.user_service.util.Department;
-import io.github.nitishc.grievance.user_service.util.Role;
+import io.github.nitishc.grievance.user_service.model.Department;
+import io.github.nitishc.grievance.user_service.model.Role;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.Email;
@@ -17,7 +17,7 @@ public class OfficerSignupRequest {
 
     @NotBlank(message = "Name is Mandatory")
     @Size(min = 3, max = 30, message = "Name must be between 3-30 character")
-    private String name;
+    private String fullName;
 
     @NotBlank(message = "Password needed")
     @Size(min = 6, message = "Password should contain at least 6 character")
@@ -27,7 +27,7 @@ public class OfficerSignupRequest {
     @Email(message = "Email should be valid")
     private String email;
 
-    @Size(min=7, max=10, message = "Phone no should be of 10 digits only")
+    @Size(min=4, max=10, message = "Phone no should be of 10 digits only")
     private String phone;
 
     @NotNull(message= "Role is needed to insert new officer record")

@@ -14,8 +14,8 @@ spring:
       ddl-auto: update
 
 server:
-  port: 8080
-  servlet:
-    context-path : /grievance-portal
+  port: 8082
+#  servlet:
+#    context-path : /grievance-portal
 
 

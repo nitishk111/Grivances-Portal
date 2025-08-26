@@ -2,7 +2,6 @@ package io.github.nitishc.grievance.user_service.controller;
 
 import io.github.nitishc.grievance.user_service.dto.UserResponse;
 import io.github.nitishc.grievance.user_service.dto.UserSignupRequest;
-import io.github.nitishc.grievance.user_service.dto.UserLoginRequest;
 import io.github.nitishc.grievance.user_service.exception.UserNotDeletedException;
 import io.github.nitishc.grievance.user_service.exception.UserNotFoundException;
 import io.github.nitishc.grievance.user_service.exception.UserNotSavedException;
@@ -19,43 +18,38 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/user")
 @Slf4j
-public class UserController{
-
-    private final UserService userService;
+public class UserController {
 
     @Autowired
-    public UserController(UserService userService){
-        this.userService = userService;
-    }
-
+    private UserService userService;
 
     @GetMapping("show-profile/{email}")
     public ResponseEntity<ResponseInfo<UserResponse>> getUserByEmail(@PathVariable("email") String email, HttpServletRequest request)
             throws UserNotFoundException {
-        log.info("Request received to fetch record of via email: {}",email);
-        UserResponse userDto= userService.userProfile(email);
-        ResponseInfo<UserResponse> responseInfo= new ResponseInfo<>(HttpStatus.ACCEPTED.value(), HttpStatus.ACCEPTED.name(),
+        log.info("Request received to fetch record of via email: {}", email);
+        UserResponse userDto = userService.userProfile(email);
+        ResponseInfo<UserResponse> responseInfo = new ResponseInfo<>(HttpStatus.ACCEPTED.value(), HttpStatus.ACCEPTED.name(),
                 userDto, request.getRequestURI());
         return new ResponseEntity<>(responseInfo, HttpStatus.ACCEPTED);
     }
 
 
-    @PatchMapping("/update")
+    @PatchMapping("/update/{email}")
     public ResponseEntity<ResponseInfo<UserResponse>> updateUser(
             @PathVariable("email") String email, @RequestBody UserSignupRequest user, HttpServletRequest request)
             throws UserNotFoundException, UserNotSavedException {
         log.info("User with email: {}, requested to update record", email);
-        UserResponse userDto= userService.updateUser(email, user);
-        ResponseInfo<UserResponse> responseInfo= new ResponseInfo<>(HttpStatus.ACCEPTED.value(), HttpStatus.ACCEPTED.name(),
+        UserResponse userDto = userService.updateUser(email, user);
+        ResponseInfo<UserResponse> responseInfo = new ResponseInfo<>(HttpStatus.ACCEPTED.value(), HttpStatus.ACCEPTED.name(),
                 userDto, request.getRequestURI());
         return new ResponseEntity<>(responseInfo, HttpStatus.ACCEPTED);
     }
 
-    @DeleteMapping("/delete")
+    @DeleteMapping("/delete/{email}")
     public ResponseEntity<ResponseInfo<String>> deleteUser(@PathVariable("email") String email, HttpServletRequest request) throws UserNotFoundException, UserNotDeletedException {
-        log.info("User with email: {}, requested to delete record",email);
+        log.info("User with email: {}, requested to delete record", email);
         userService.deleteUser(email);
-        ResponseInfo<String> responseInfo= new ResponseInfo<>(HttpStatus.ACCEPTED.value(), HttpStatus.ACCEPTED.name(),
+        ResponseInfo<String> responseInfo = new ResponseInfo<>(HttpStatus.ACCEPTED.value(), HttpStatus.ACCEPTED.name(),
                 "Record Deleted", request.getRequestURI());
         return new ResponseEntity<>(responseInfo, HttpStatus.ACCEPTED);
     }

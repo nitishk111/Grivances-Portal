@@ -1,19 +1,17 @@
 package io.github.nitishc.grievance.user_service.dto;
 
-import io.github.nitishc.grievance.user_service.util.Department;
-import io.github.nitishc.grievance.user_service.util.Role;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import io.github.nitishc.grievance.user_service.model.Department;
+import io.github.nitishc.grievance.user_service.model.Role;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class OfficerResponse {
 
-
-    private String name;
+    private String fullName;
 
     private String email;
 

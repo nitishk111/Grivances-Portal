@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/grievances")
 public class UserGrievanceController {
 
     private final GrievanceService grievanceService;
@@ -27,19 +27,19 @@ public class UserGrievanceController {
         this.grievanceService=grievanceService;
     }
 
-    @PostMapping("/register-grievance/{user-id}")
+    @PostMapping("/register/{user-id}")
     public ResponseEntity<ResponseInfo<String>> registerGrievance(@RequestBody GrievanceRequest grievanceRequest, @PathVariable("user-id")
     long userId, HttpServletRequest request) throws GrievanceNotSavedException, DatabaseConstraintVoilation {
 
         String message= grievanceService.saveGrievance(grievanceRequest, userId);
 
-        ResponseInfo<String> rInfo= new ResponseInfo(HttpStatus.ACCEPTED.value(), HttpStatus.ACCEPTED.name(),
+        ResponseInfo<String> rInfo= new ResponseInfo<>(HttpStatus.ACCEPTED.value(), HttpStatus.ACCEPTED.name(),
                 message, request.getRequestURI());
 
         return new ResponseEntity<>(rInfo, HttpStatus.ACCEPTED);
     }
 
-    @GetMapping("/grievances/{user-id}")
+    @GetMapping("/show/{user-id}")
     public ResponseEntity<ResponseInfo<List<GrievanceResponse>>> getGrievancesByUser(@PathVariable("user-id") long userId, HttpServletRequest request) throws GrievanceNotFoundException {
 
         List<GrievanceResponse> grievanceByUser = grievanceService.getGrievanceByUser(userId);
@@ -62,7 +62,7 @@ public class UserGrievanceController {
         return new ResponseEntity<>(rInfo, HttpStatus.ACCEPTED);
     }
 
-    @PostMapping("/update-grievance/{user-id}/{grievance-id}")
+    @PostMapping("/update/{user-id}/{grievance-id}")
     public ResponseEntity<ResponseInfo<String>> updateGrievance(@RequestBody GrievanceRequest grievancerequest, @PathVariable("user-id") long userId,
                                 @PathVariable("grievance-id") long grievanceId, HttpServletRequest request) throws DatabaseConstraintVoilation, GrievanceNotFoundException {
 

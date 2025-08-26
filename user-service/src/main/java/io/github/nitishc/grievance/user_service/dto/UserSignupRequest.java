@@ -12,7 +12,7 @@ public class UserSignupRequest {
 
     @NotBlank(message = "Name is Mandatory")
     @Size(min = 3, max = 30, message = "Name must be between 3-30 character")
-    private String name;
+    private String fullName;
 
     @NotBlank(message = "Password needed")
     @Size(min = 7, message = "Password should contain at least 6 character")
