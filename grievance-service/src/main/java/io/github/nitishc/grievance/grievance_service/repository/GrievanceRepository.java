@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface GrievanceRepository extends JpaRepository<Grievance, Long> {
 
-    public List<Grievance> findAllByUserId(long userId);
+    public List<Grievance> findAllByUserEmail(String userEmail);
 
     public List<Grievance> findAllByGrievanceType(Department grievanceType);
 

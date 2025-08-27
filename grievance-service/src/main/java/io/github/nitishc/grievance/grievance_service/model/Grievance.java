@@ -23,7 +23,7 @@ public class Grievance {
     private long grievanceId;
 
     @Column(nullable = false)
-    private long userId;
+    private String userEmail;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -59,12 +59,4 @@ public class Grievance {
     @OneToMany(mappedBy = "grievance")
     private List<Comment> comments = new ArrayList<>();
 
-
-    public Grievance(Department department, String complaintTitle, String complaintDescription, Address address) {
-
-        this.grievanceType = department;
-        this.complaintTitle= complaintTitle;
-        this.complaintDescription=complaintDescription;
-        this.address=address;
-    }
 }

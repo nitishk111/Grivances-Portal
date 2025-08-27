@@ -13,9 +13,7 @@ import io.github.nitishc.grievance.grievance_service.model.Grievance;
 import io.github.nitishc.grievance.grievance_service.repository.AddressRepository;
 import io.github.nitishc.grievance.grievance_service.repository.CommentRepository;
 import io.github.nitishc.grievance.grievance_service.repository.GrievanceRepository;
-import io.github.nitishc.grievance.grievance_service.util.Department;
-import io.github.nitishc.grievance.grievance_service.util.Priority;
-import io.github.nitishc.grievance.grievance_service.util.Status;
+import io.github.nitishc.grievance.grievance_service.util.*;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,24 +28,21 @@ import java.util.List;
 public class GrievanceService {
 
 
-    private final GrievanceRepository grievanceRepository;
-    private final AddressRepository addressRepository;
-    private final CommentRepository commentRepository;
-
     @Autowired
-    public GrievanceService(GrievanceRepository grievanceRepository, AddressRepository addressRepository,
-                            CommentRepository commentRepository){
-        this.grievanceRepository = grievanceRepository;
-        this.addressRepository=addressRepository;
-        this.commentRepository= commentRepository;
-    }
+    private GrievanceRepository grievanceRepository;
+    @Autowired
+    private AddressRepository addressRepository;
+    @Autowired
+    private CommentRepository commentRepository;
+    @Autowired
+    private GrievancesMapper grievancesMapper;
+    @Autowired
+    private OfficerGrievanceMapper officerGrievanceMapper;
 
 
     @Transactional
-    public String saveGrievance(GrievanceRequest grievanceDto, long userId) throws GrievanceNotSavedException, DatabaseConstraintVoilation {
-        Grievance grievance= new Grievance(grievanceDto.getDepartment(), grievanceDto.getComplaintTitle(),
-                grievanceDto.getComplaintDescription(), grievanceDto.getAddress());
-        grievance.setUserId(userId);
+    public String saveGrievance(GrievanceRequest grievanceDto, String userEmail) throws GrievanceNotSavedException, DatabaseConstraintVoilation {
+        Grievance grievance= grievancesMapper.toEntity(grievanceDto);
         try{
             grievance= grievanceRepository.save(grievance);
             if(grievanceDto.getAddress() != null){
@@ -55,8 +50,6 @@ public class GrievanceService {
                 address.setGrievance(grievance);
                 addressRepository.save(address);
             }
-
-
         } catch (Exception e) {
             String message= "Can not save, recheck record.";
             log.error(message, e.getMessage());
@@ -67,11 +60,10 @@ public class GrievanceService {
         return message;
     }
 
-    public List<GrievanceResponse> getGrievanceByUser(long userId) throws GrievanceNotFoundException {
+    public List<GrievanceResponse> getGrievanceByUser(String userEmail) throws GrievanceNotFoundException {
         List<Grievance> grievances;
-
         try{
-            grievances = grievanceRepository.findAllByUserId(userId);
+            grievances = grievanceRepository.findAllByUserEmail(userEmail);
             if(grievances == null || grievances.size()==0){
                 String message= "No registered complain found.";
                 log.warn(message);
@@ -82,9 +74,7 @@ public class GrievanceService {
         }
         List<GrievanceResponse> grievanceResponses= new ArrayList<>();
         for(Grievance g: grievances){
-            GrievanceResponse resp= new GrievanceResponse(g.getGrievanceId(), g.getComplaintTitle(), g.getComplaintDescription(),
-                    g.getAddress(), g.getStatus(), g.getPriority(), g.getCreatedAt(), g.getLastUpdate(), g.getComments());
-            grievanceResponses.add(resp);
+           grievanceResponses.add(grievancesMapper.toDto(g));
         }
         log.info("User fetched grievances");
         return grievanceResponses;
@@ -92,7 +82,6 @@ public class GrievanceService {
 
     public List<OfficerGrievanceResponse> getGrievanceByType(Department grievanceType) throws GrievanceNotFoundException {
         List<Grievance> grievances;
-
         try{
             grievances = grievanceRepository.findAllByGrievanceType(grievanceType);
             if(grievances == null || grievances.isEmpty()){
@@ -105,10 +94,7 @@ public class GrievanceService {
         }
         List<OfficerGrievanceResponse> grievanceResponses= new ArrayList<>();
         for(Grievance g: grievances){
-            OfficerGrievanceResponse resp= new OfficerGrievanceResponse(g.getGrievanceId(), g.getUserId(),
-                    g.getGrievanceType(), g.getComplaintTitle(), g.getComplaintDescription(), g.getAddress(),
-                    g.getStatus(), g.getPriority(), g.getCreatedAt(), g.getLastUpdate(), g.getComments());
-            grievanceResponses.add(resp);
+            grievanceResponses.add(officerGrievanceMapper.toDto(g));
         }
         log.info("Officer fetched grievances for department: ", grievanceType);
         return grievanceResponses;
@@ -129,10 +115,7 @@ public class GrievanceService {
         }
         List<OfficerGrievanceResponse> grievanceResponses= new ArrayList<>();
         for(Grievance g: grievances){
-            OfficerGrievanceResponse resp= new OfficerGrievanceResponse(g.getGrievanceId(), g.getUserId(),
-                    g.getGrievanceType(), g.getComplaintTitle(), g.getComplaintDescription(), g.getAddress(),
-                    g.getStatus(), g.getPriority(), g.getCreatedAt(), g.getLastUpdate(), g.getComments());
-            grievanceResponses.add(resp);
+            grievanceResponses.add(officerGrievanceMapper.toDto(g));
         }
         log.info("Officer fetched grievances for status: ", status);
         return grievanceResponses;
@@ -153,16 +136,14 @@ public class GrievanceService {
         }
         List<OfficerGrievanceResponse> grievanceResponses= new ArrayList<>();
         for(Grievance g: grievances){
-            OfficerGrievanceResponse resp= new OfficerGrievanceResponse(g.getGrievanceId(), g.getUserId(),
-                    g.getGrievanceType(), g.getComplaintTitle(), g.getComplaintDescription(), g.getAddress(),
-                    g.getStatus(), g.getPriority(), g.getCreatedAt(), g.getLastUpdate(), g.getComments());
-            grievanceResponses.add(resp);
+            grievanceResponses.add(officerGrievanceMapper.toDto(g));
         }
         log.info("Officer fetched grievances for priority: ", priority);
         return grievanceResponses;
     }
 
-    public String addComment(long userId, long grievanceId, CommentRequest commentRequest) throws GrievanceNotFoundException, DatabaseConstraintVoilation {
+    @Transactional
+    public String addComment(String userEmail, long grievanceId, CommentRequest commentRequest) throws GrievanceNotFoundException, DatabaseConstraintVoilation {
 
         Grievance grievance= grievanceRepository.findById(grievanceId).get();
         if(grievance == null){
@@ -170,8 +151,7 @@ public class GrievanceService {
             log.warn(message);
             throw new GrievanceNotFoundException(message);
         }
-
-        Comment comment= new Comment(userId, grievance, commentRequest.getCommentText());
+        Comment comment= new Comment(userEmail, grievance, commentRequest);
 
 //        List<Comment> comments = grievance.getComments();
 //        comments.add(comment);
@@ -179,8 +159,8 @@ public class GrievanceService {
 
         grievance.setLastUpdate(LocalDate.now());
         try{
+            grievanceRepository.save(grievance);
             commentRepository.save(comment);
-
         } catch (Exception e) {
             throw new DatabaseConstraintVoilation(e.getMessage());
         }
@@ -188,11 +168,11 @@ public class GrievanceService {
         return "Comment Saved";
     }
 
-    public String updateGrievance(GrievanceRequest grievancerequest, long userId, long grievanceId) throws GrievanceNotFoundException, DatabaseConstraintVoilation {
+    public String updateGrievance(GrievanceRequest grievancerequest, String userEmail, long grievanceId) throws GrievanceNotFoundException, DatabaseConstraintVoilation {
 
         Grievance grievance= grievanceRepository.findById(grievanceId).get();
 
-        if(grievance==null|| grievance.getUserId()!= userId){
+        if(grievance==null|| grievance.getUserEmail()!=userEmail){
             String message= "No grievance record found";
             log.warn(message);
             throw new GrievanceNotFoundException(message);
@@ -218,11 +198,11 @@ public class GrievanceService {
        return message;
     }
 
-    public String updatePriority(Priority priority, long userId, long grievanceId) throws GrievanceNotFoundException, DatabaseConstraintVoilation {
+    public String updatePriority(Priority priority, long grievanceId) throws GrievanceNotFoundException, DatabaseConstraintVoilation {
 
         Grievance grievance= grievanceRepository.findById(grievanceId).get();
 
-        if(grievance==null|| grievance.getUserId()!= userId){
+        if(grievance==null){
             String message= "No grievance record found";
             log.warn(message);
             throw new GrievanceNotFoundException(message);
@@ -243,11 +223,11 @@ public class GrievanceService {
         return message;
     }
 
-    public String updateStatus(Status status, long userId, long grievanceId) throws GrievanceNotFoundException, DatabaseConstraintVoilation {
+    public String updateStatus(Status status, long grievanceId) throws GrievanceNotFoundException, DatabaseConstraintVoilation {
 
         Grievance grievance= grievanceRepository.findById(grievanceId).get();
 
-        if(grievance==null|| grievance.getUserId()!= userId){
+        if(grievance==null){
             String message= "No grievance record found";
             log.warn(message);
             throw new GrievanceNotFoundException(message);

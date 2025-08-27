@@ -1,10 +1,8 @@
 package io.github.nitishc.grievance.grievance_service.model;
 
+import io.github.nitishc.grievance.grievance_service.dto.CommentRequest;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDate;
 
@@ -18,7 +16,7 @@ public class Comment {
     private long commentId;
 
     @Column(nullable = false)
-    private long userId;
+    private String userEmail;
 
     @Column(nullable = false)
     private String commentText;
@@ -31,9 +29,10 @@ public class Comment {
     @JoinColumn(nullable = false)
     private Grievance grievance;
 
-    public Comment(long userId, Grievance grievance, String commentText) {
-        this.userId= userId;
+    public Comment(String userEmail, Grievance grievance, CommentRequest commentRequest) {
+
+        this.userEmail=userEmail;
         this.grievance = grievance;
-        this.commentText= commentText;
+        this.commentText= commentRequest.getCommentText();
     }
 }

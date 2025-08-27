@@ -24,12 +24,12 @@ public class AdminController {
     private OfficerService officerService;
 
     @PostMapping("/add-officer")
-    public ResponseEntity<ResponseInfo<String>> addOfficer(@Validated @RequestBody OfficerSignupRequest officerDto,
+    public ResponseEntity<ResponseInfo<OfficerResponse>> addOfficer(@Validated @RequestBody OfficerSignupRequest officerDto,
                                                            HttpServletRequest request) throws UserNotSavedException {
         log.info("Request Received to save new officer record");
-        officerService.signupOfficer(officerDto);
-        ResponseInfo<String> responseInfo = new ResponseInfo<>(HttpStatus.ACCEPTED.value(), HttpStatus.ACCEPTED.name(),
-                "Officer's Record Added.", request.getRequestURI());
+        OfficerResponse officerResponse = officerService.signupOfficer(officerDto);
+        ResponseInfo<OfficerResponse> responseInfo = new ResponseInfo<>(HttpStatus.ACCEPTED.value(), HttpStatus.ACCEPTED.name(),
+                officerResponse, request.getRequestURI());
         return new ResponseEntity<>(responseInfo, HttpStatus.ACCEPTED);
     }
 

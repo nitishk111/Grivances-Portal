@@ -27,11 +27,12 @@ public class UserGrievanceController {
         this.grievanceService=grievanceService;
     }
 
-    @PostMapping("/register/{user-id}")
-    public ResponseEntity<ResponseInfo<String>> registerGrievance(@RequestBody GrievanceRequest grievanceRequest, @PathVariable("user-id")
-    long userId, HttpServletRequest request) throws GrievanceNotSavedException, DatabaseConstraintVoilation {
+    @PostMapping("/register")
+    public ResponseEntity<ResponseInfo<String>> registerGrievance(@RequestBody GrievanceRequest grievanceRequest, HttpServletRequest request)
+            throws GrievanceNotSavedException, DatabaseConstraintVoilation {
 
-        String message= grievanceService.saveGrievance(grievanceRequest, userId);
+        String userEmail=null;
+        String message= grievanceService.saveGrievance(grievanceRequest, userEmail);
 
         ResponseInfo<String> rInfo= new ResponseInfo<>(HttpStatus.ACCEPTED.value(), HttpStatus.ACCEPTED.name(),
                 message, request.getRequestURI());
@@ -39,10 +40,11 @@ public class UserGrievanceController {
         return new ResponseEntity<>(rInfo, HttpStatus.ACCEPTED);
     }
 
-    @GetMapping("/show/{user-id}")
+    @GetMapping("/show")
     public ResponseEntity<ResponseInfo<List<GrievanceResponse>>> getGrievancesByUser(@PathVariable("user-id") long userId, HttpServletRequest request) throws GrievanceNotFoundException {
 
-        List<GrievanceResponse> grievanceByUser = grievanceService.getGrievanceByUser(userId);
+        String userEmail=null;
+        List<GrievanceResponse> grievanceByUser = grievanceService.getGrievanceByUser(userEmail);
 
         ResponseInfo<List<GrievanceResponse>> rInfo= new ResponseInfo<>(HttpStatus.ACCEPTED.value(), HttpStatus.ACCEPTED.name(),
                 grievanceByUser, request.getRequestURI());
@@ -50,11 +52,12 @@ public class UserGrievanceController {
         return new ResponseEntity<>(rInfo, HttpStatus.FOUND);
     }
 
-    @PostMapping("/comment/{user-id}/{grievance-id}")
+    @PostMapping("/comment/{grievance-id}")
     public ResponseEntity<ResponseInfo<String>> postComment(@RequestBody CommentRequest commentRequest, @PathVariable("user-id") long userId,
                             @PathVariable("grievance-id") long grievanceId, HttpServletRequest request) throws DatabaseConstraintVoilation, GrievanceNotFoundException {
 
-        String message = grievanceService.addComment(userId, grievanceId, commentRequest);
+        String userEmail=null;
+        String message = grievanceService.addComment(userEmail, grievanceId, commentRequest);
 
         ResponseInfo<String> rInfo= new ResponseInfo<>(HttpStatus.ACCEPTED.value(), HttpStatus.ACCEPTED.name(),
                 message, request.getRequestURI());
@@ -62,11 +65,11 @@ public class UserGrievanceController {
         return new ResponseEntity<>(rInfo, HttpStatus.ACCEPTED);
     }
 
-    @PostMapping("/update/{user-id}/{grievance-id}")
+    @PostMapping("/update/{grievance-id}")
     public ResponseEntity<ResponseInfo<String>> updateGrievance(@RequestBody GrievanceRequest grievancerequest, @PathVariable("user-id") long userId,
                                 @PathVariable("grievance-id") long grievanceId, HttpServletRequest request) throws DatabaseConstraintVoilation, GrievanceNotFoundException {
-
-        String message = grievanceService.updateGrievance(grievancerequest, userId, grievanceId);
+        String userEmail=null;;
+        String message = grievanceService.updateGrievance(grievancerequest, userEmail, grievanceId);
 
         ResponseInfo<String> rInfo= new ResponseInfo<>(HttpStatus.ACCEPTED.value(), HttpStatus.ACCEPTED.name(),
                 message, request.getRequestURI());

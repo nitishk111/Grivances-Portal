@@ -59,21 +59,21 @@ public class OfficerGrievanceController {
         return new ResponseEntity<>(rInfo, HttpStatus.FOUND);
     }
 
-    @PostMapping("update-status/{priority}/{user-id}/{grievance-id}")
-    public ResponseEntity<ResponseInfo<String>> updateGrievanceStatus(@PathVariable("priority") Priority priority, @PathVariable("user-id") long userId,
+    @PostMapping("update-status/{priority}/{grievance-id}")
+    public ResponseEntity<ResponseInfo<String>> updateGrievanceStatus(@PathVariable("priority") Priority priority,
                                                                       @PathVariable("grievance-id") long grievanceId, HttpServletRequest request) throws DatabaseConstraintVoilation, GrievanceNotFoundException {
 
-        String message = grievanceService.updatePriority(priority, userId, grievanceId);
+        String message = grievanceService.updatePriority(priority, grievanceId);
         ResponseInfo<String> rInfo = new ResponseInfo<>(HttpStatus.FOUND.value(), HttpStatus.FOUND.name(),
                 message, request.getRequestURI());
         return new ResponseEntity<>(rInfo, HttpStatus.FOUND);
     }
 
-    @PostMapping("update-priority/{status}/{user-id}/{grievance-id}")
-    public ResponseEntity<ResponseInfo<String>> updateGrievancePriority(@PathVariable("status") Status status, @PathVariable("user-id") long userId,
+    @PostMapping("update-priority/{status}/{grievance-id}")
+    public ResponseEntity<ResponseInfo<String>> updateGrievancePriority(@PathVariable("status") Status status,
                                                                         @PathVariable("grievance-id") long grievanceId, HttpServletRequest request) throws DatabaseConstraintVoilation, GrievanceNotFoundException {
 
-        String message = grievanceService.updateStatus(status, userId, grievanceId);
+        String message = grievanceService.updateStatus(status, grievanceId);
         ResponseInfo<String> rInfo = new ResponseInfo<>(HttpStatus.FOUND.value(), HttpStatus.FOUND.name(),
                 message, request.getRequestURI());
         return new ResponseEntity<>(rInfo, HttpStatus.FOUND);

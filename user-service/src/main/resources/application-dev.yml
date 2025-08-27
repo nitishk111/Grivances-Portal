@@ -18,4 +18,14 @@ server:
 #  servlet:
 #    context-path : /grievance-portal
 
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG
+
+app:
+  static:
+    value: NIT+HaV^uvCHEFsEVfypW#7g9^k*Z0$V
+
 

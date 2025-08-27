@@ -20,14 +20,14 @@ public class OfficerSignupRequest {
     private String fullName;
 
     @NotBlank(message = "Password needed")
-    @Size(min = 6, message = "Password should contain at least 6 character")
+    @Size(min = 1, message = "Password should contain at least 6 character")
     private String password;
 
     @NotBlank(message = "Email is mandatory")
     @Email(message = "Email should be valid")
     private String email;
 
-    @Size(min=4, max=10, message = "Phone no should be of 10 digits only")
+    @Size(min=1, max=10, message = "Phone no should be of 10 digits only")
     private String phone;
 
     @NotNull(message= "Role is needed to insert new officer record")

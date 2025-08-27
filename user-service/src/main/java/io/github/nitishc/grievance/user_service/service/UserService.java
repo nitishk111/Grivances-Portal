@@ -10,6 +10,7 @@ import io.github.nitishc.grievance.user_service.repository.UserRepository;
 import io.github.nitishc.grievance.user_service.util.UserMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
@@ -21,10 +22,13 @@ public class UserService {
     private UserRepository userRepo;
     @Autowired
     private UserMapper mapper;
+    @Autowired
+    PasswordEncoder passwordEncoder;
 
     public UserResponse userSignup(UserSignupRequest userDto) throws UserNotSavedException {
         User user= mapper.toEntity(userDto);
         User savedUser;
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         try{
             savedUser= userRepo.save(user);
         }catch (Exception e){
@@ -57,7 +61,7 @@ public class UserService {
         existingUser.setEmail(user.getEmail() !=null && !user.getEmail().isEmpty() ? user.getEmail(): existingUser.getEmail());
         existingUser.setPhone(user.getPhone() !=null && !user.getPhone().isEmpty() ? user.getPhone(): existingUser.getPhone());
         existingUser.setFullName(user.getFullName() !=null && !user.getFullName().isEmpty() ? user.getFullName(): existingUser.getFullName());
-        existingUser.setPassword(user.getPassword() !=null && !user.getPassword().isEmpty() ? user.getPassword(): existingUser.getPassword());
+        existingUser.setPassword(user.getPassword() !=null && !user.getPassword().isEmpty() ? passwordEncoder.encode(user.getPassword()): passwordEncoder.encode(existingUser.getPassword()));
 
         try{
             existingUser= userRepo.save(existingUser);

@@ -10,6 +10,7 @@ import io.github.nitishc.grievance.user_service.repository.UserRepository;
 import io.github.nitishc.grievance.user_service.util.OfficerMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -20,10 +21,13 @@ public class OfficerService{
     private UserRepository userRepository;
     @Autowired
     private OfficerMapper mapper;
+    @Autowired
+    PasswordEncoder passwordEncoder;
 
     public OfficerResponse signupOfficer(OfficerSignupRequest officerDto) throws UserNotSavedException {
 
         User officer= mapper.toEntity(officerDto);
+        officer.setPassword(passwordEncoder.encode(officer.getPassword()));
         User savedUser;
         try{
             savedUser= userRepository.save(officer);
@@ -52,7 +56,7 @@ public class OfficerService{
     }
 
 
-    public OfficerResponse updateOfficer(String email, OfficerSignupRequest user) throws UserNotFoundException, UserNotSavedException {
+    public OfficerResponse updateOfficer(String email, OfficerSignupRequest officer) throws UserNotFoundException, UserNotSavedException {
         User existingOfficer;
         try{
             existingOfficer= userRepository.findByEmail(email);
@@ -64,12 +68,12 @@ public class OfficerService{
             log.error("No Officer Recors with email: {} found", email, e.getMessage());
             throw new UserNotFoundException(e.getMessage());
         }
-        existingOfficer.setEmail(user.getEmail() !=null && !user.getEmail().isEmpty() ? user.getEmail(): existingOfficer.getEmail());
-        existingOfficer.setPhone(user.getPhone() !=null && !user.getPhone().isEmpty() ? user.getPhone(): existingOfficer.getPhone());
-        existingOfficer.setFullName(user.getFullName() !=null && !user.getFullName().isEmpty() ? user.getFullName(): existingOfficer.getFullName());
-        existingOfficer.setPassword(user.getPassword() !=null && !user.getPassword().isEmpty() ? user.getPassword(): existingOfficer.getPassword());
-        existingOfficer.setRole(user.getRole() != null ? user.getRole(): existingOfficer.getRole());
-        existingOfficer.setDepartment(user.getDepartment() != null ? user.getDepartment(): existingOfficer.getDepartment());
+        existingOfficer.setEmail(officer.getEmail() !=null && !officer.getEmail().isEmpty() ? officer.getEmail(): existingOfficer.getEmail());
+        existingOfficer.setPhone(officer.getPhone() !=null && !officer.getPhone().isEmpty() ? officer.getPhone(): existingOfficer.getPhone());
+        existingOfficer.setFullName(officer.getFullName() !=null && !officer.getFullName().isEmpty() ? officer.getFullName(): existingOfficer.getFullName());
+        existingOfficer.setPassword(officer.getPassword() !=null && !officer.getPassword().isEmpty() ? passwordEncoder.encode(officer.getPassword()): passwordEncoder.encode(existingOfficer.getPassword()));
+        existingOfficer.setRole(officer.getRole() != null ? officer.getRole(): existingOfficer.getRole());
+        existingOfficer.setDepartment(officer.getDepartment() != null ? officer.getDepartment(): existingOfficer.getDepartment());
 
         try{
             existingOfficer= userRepository.save(existingOfficer);

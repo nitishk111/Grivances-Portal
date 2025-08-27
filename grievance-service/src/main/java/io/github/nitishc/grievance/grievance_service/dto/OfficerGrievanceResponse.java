@@ -14,12 +14,11 @@ import java.util.List;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class OfficerGrievanceResponse {
 
     private long grievanceId;
 
-    private long userId;
+    private String userEmail;
 
     private Department grievanceType;
 
