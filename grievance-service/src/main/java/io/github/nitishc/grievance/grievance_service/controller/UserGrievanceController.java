@@ -12,6 +12,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,7 +33,8 @@ public class UserGrievanceController {
     public ResponseEntity<ResponseInfo<String>> registerGrievance(@RequestBody GrievanceRequest grievanceRequest, HttpServletRequest request)
             throws GrievanceNotSavedException, DatabaseConstraintVoilation {
 
-        String userEmail=null;
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userEmail =(String) authentication.getPrincipal();
         String message= grievanceService.saveGrievance(grievanceRequest, userEmail);
 
         ResponseInfo<String> rInfo= new ResponseInfo<>(HttpStatus.ACCEPTED.value(), HttpStatus.ACCEPTED.name(),
@@ -41,9 +44,12 @@ public class UserGrievanceController {
     }
 
     @GetMapping("/show")
-    public ResponseEntity<ResponseInfo<List<GrievanceResponse>>> getGrievancesByUser(@PathVariable("user-id") long userId, HttpServletRequest request) throws GrievanceNotFoundException {
+    public ResponseEntity<ResponseInfo<List<GrievanceResponse>>> getGrievancesByUser(HttpServletRequest request) throws GrievanceNotFoundException {
 
-        String userEmail=null;
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userEmail =(String) authentication.getPrincipal();
+
+        System.out.println("joj");
         List<GrievanceResponse> grievanceByUser = grievanceService.getGrievanceByUser(userEmail);
 
         ResponseInfo<List<GrievanceResponse>> rInfo= new ResponseInfo<>(HttpStatus.ACCEPTED.value(), HttpStatus.ACCEPTED.name(),
@@ -53,10 +59,11 @@ public class UserGrievanceController {
     }
 
     @PostMapping("/comment/{grievance-id}")
-    public ResponseEntity<ResponseInfo<String>> postComment(@RequestBody CommentRequest commentRequest, @PathVariable("user-id") long userId,
+    public ResponseEntity<ResponseInfo<String>> postComment(@RequestBody CommentRequest commentRequest,
                             @PathVariable("grievance-id") long grievanceId, HttpServletRequest request) throws DatabaseConstraintVoilation, GrievanceNotFoundException {
 
-        String userEmail=null;
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userEmail =(String) authentication.getPrincipal();
         String message = grievanceService.addComment(userEmail, grievanceId, commentRequest);
 
         ResponseInfo<String> rInfo= new ResponseInfo<>(HttpStatus.ACCEPTED.value(), HttpStatus.ACCEPTED.name(),
@@ -66,9 +73,11 @@ public class UserGrievanceController {
     }
 
     @PostMapping("/update/{grievance-id}")
-    public ResponseEntity<ResponseInfo<String>> updateGrievance(@RequestBody GrievanceRequest grievancerequest, @PathVariable("user-id") long userId,
+    public ResponseEntity<ResponseInfo<String>> updateGrievance(@RequestBody GrievanceRequest grievancerequest,
                                 @PathVariable("grievance-id") long grievanceId, HttpServletRequest request) throws DatabaseConstraintVoilation, GrievanceNotFoundException {
-        String userEmail=null;;
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userEmail =(String) authentication.getPrincipal();
+
         String message = grievanceService.updateGrievance(grievancerequest, userEmail, grievanceId);
 
         ResponseInfo<String> rInfo= new ResponseInfo<>(HttpStatus.ACCEPTED.value(), HttpStatus.ACCEPTED.name(),

@@ -42,39 +42,40 @@ public class GrievanceService {
 
     @Transactional
     public String saveGrievance(GrievanceRequest grievanceDto, String userEmail) throws GrievanceNotSavedException, DatabaseConstraintVoilation {
-        Grievance grievance= grievancesMapper.toEntity(grievanceDto);
-        try{
-            grievance= grievanceRepository.save(grievance);
-            if(grievanceDto.getAddress() != null){
+        Grievance grievance = grievancesMapper.toEntity(grievanceDto);
+        grievance.setUserEmail(userEmail);
+        try {
+            grievance = grievanceRepository.save(grievance);
+            if (grievanceDto.getAddress() != null) {
                 Address address = grievanceDto.getAddress();
                 address.setGrievance(grievance);
                 addressRepository.save(address);
             }
         } catch (Exception e) {
-            String message= "Can not save, recheck record.";
+            String message = "Can not save, recheck record.";
             log.error(message, e.getMessage());
-            throw new DatabaseConstraintVoilation(message+e.getMessage());
+            throw new DatabaseConstraintVoilation(message + e.getMessage());
         }
-        String message= "Complaint registered with unique id:" +grievance.getGrievanceId();
+        String message = "Complaint registered with unique id:" + grievance.getGrievanceId();
         log.info(message);
         return message;
     }
 
     public List<GrievanceResponse> getGrievanceByUser(String userEmail) throws GrievanceNotFoundException {
         List<Grievance> grievances;
-        try{
+        try {
             grievances = grievanceRepository.findAllByUserEmail(userEmail);
-            if(grievances == null || grievances.size()==0){
-                String message= "No registered complain found.";
+            if (grievances == null || grievances.size() == 0) {
+                String message = "No registered complain found.";
                 log.warn(message);
                 throw new GrievanceNotFoundException(message);
             }
         } catch (Exception e) {
             throw new GrievanceNotFoundException(e.getMessage());
         }
-        List<GrievanceResponse> grievanceResponses= new ArrayList<>();
-        for(Grievance g: grievances){
-           grievanceResponses.add(grievancesMapper.toDto(g));
+        List<GrievanceResponse> grievanceResponses = new ArrayList<>();
+        for (Grievance g : grievances) {
+            grievanceResponses.add(grievancesMapper.toDto(g));
         }
         log.info("User fetched grievances");
         return grievanceResponses;
@@ -82,62 +83,67 @@ public class GrievanceService {
 
     public List<OfficerGrievanceResponse> getGrievanceByType(Department grievanceType) throws GrievanceNotFoundException {
         List<Grievance> grievances;
-        try{
+        try {
             grievances = grievanceRepository.findAllByGrievanceType(grievanceType);
-            if(grievances == null || grievances.isEmpty()){
-                String message= "No registered complain found.";
+            if (grievances == null || grievances.isEmpty()) {
+                String message = "No registered complain found.";
                 log.warn(message);
                 throw new GrievanceNotFoundException(message);
             }
         } catch (Exception e) {
             throw new GrievanceNotFoundException(e.getMessage());
         }
-        List<OfficerGrievanceResponse> grievanceResponses= new ArrayList<>();
-        for(Grievance g: grievances){
+        List<OfficerGrievanceResponse> grievanceResponses = new ArrayList<>();
+        for (Grievance g : grievances) {
             grievanceResponses.add(officerGrievanceMapper.toDto(g));
         }
         log.info("Officer fetched grievances for department: ", grievanceType);
         return grievanceResponses;
     }
 
-    public List<OfficerGrievanceResponse> getGrievanceByStatus(Status status) throws GrievanceNotFoundException {
+    public List<OfficerGrievanceResponse> getGrievanceByStatus(Status status, String grievanceType) throws GrievanceNotFoundException {
         List<Grievance> grievances;
 
-        try{
+        try {
             grievances = grievanceRepository.findAllByStatus(status);
-            if(grievances == null || grievances.isEmpty()){
-                String message= "No registered complain found.";
+            if (grievances == null || grievances.isEmpty()) {
+                String message = "No registered complain found.";
                 log.warn(message);
                 throw new GrievanceNotFoundException(message);
             }
         } catch (Exception e) {
             throw new GrievanceNotFoundException(e.getMessage());
         }
-        List<OfficerGrievanceResponse> grievanceResponses= new ArrayList<>();
-        for(Grievance g: grievances){
-            grievanceResponses.add(officerGrievanceMapper.toDto(g));
-        }
+        List<OfficerGrievanceResponse> grievanceResponses = new ArrayList<>();
+        grievanceResponses.addAll(
+                grievances.stream()
+                        .filter(g -> g.getGrievanceType().toString().equals(grievanceType))
+                        .map(officerGrievanceMapper::toDto)
+                        .toList());
+
         log.info("Officer fetched grievances for status: ", status);
         return grievanceResponses;
     }
 
-    public List<OfficerGrievanceResponse> getGrievanceByPriority(Priority priority) throws GrievanceNotFoundException, DatabaseConstraintVoilation {
+    public List<OfficerGrievanceResponse> getGrievanceByPriority(Priority priority, String grievanceType) throws GrievanceNotFoundException, DatabaseConstraintVoilation {
         List<Grievance> grievances;
 
-        try{
+        try {
             grievances = grievanceRepository.findAllByPriority(priority);
-            if(grievances == null || grievances.isEmpty()){
-                String message= "No registered complain found.";
+            if (grievances == null || grievances.isEmpty()) {
+                String message = "No registered complain found.";
                 log.warn(message);
                 throw new GrievanceNotFoundException(message);
             }
         } catch (Exception e) {
             throw new GrievanceNotFoundException(e.getMessage());
         }
-        List<OfficerGrievanceResponse> grievanceResponses= new ArrayList<>();
-        for(Grievance g: grievances){
-            grievanceResponses.add(officerGrievanceMapper.toDto(g));
-        }
+        List<OfficerGrievanceResponse> grievanceResponses = new ArrayList<>();
+        grievanceResponses.addAll(
+                grievances.stream()
+                        .filter(g -> g.getGrievanceType().toString().equals(grievanceType))
+                        .map(officerGrievanceMapper::toDto)
+                        .toList());
         log.info("Officer fetched grievances for priority: ", priority);
         return grievanceResponses;
     }
@@ -145,20 +151,20 @@ public class GrievanceService {
     @Transactional
     public String addComment(String userEmail, long grievanceId, CommentRequest commentRequest) throws GrievanceNotFoundException, DatabaseConstraintVoilation {
 
-        Grievance grievance= grievanceRepository.findById(grievanceId).get();
-        if(grievance == null){
-            String message = "No complaint found with grievance id: "+grievanceId;
+        Grievance grievance = grievanceRepository.findById(grievanceId).get();
+        if (grievance == null) {
+            String message = "No complaint found with grievance id: " + grievanceId;
             log.warn(message);
             throw new GrievanceNotFoundException(message);
         }
-        Comment comment= new Comment(userEmail, grievance, commentRequest);
+        Comment comment = new Comment(userEmail, grievance, commentRequest);
 
 //        List<Comment> comments = grievance.getComments();
 //        comments.add(comment);
 //        grievance.setComments(comments);
 
         grievance.setLastUpdate(LocalDate.now());
-        try{
+        try {
             grievanceRepository.save(grievance);
             commentRepository.save(comment);
         } catch (Exception e) {
@@ -170,40 +176,40 @@ public class GrievanceService {
 
     public String updateGrievance(GrievanceRequest grievancerequest, String userEmail, long grievanceId) throws GrievanceNotFoundException, DatabaseConstraintVoilation {
 
-        Grievance grievance= grievanceRepository.findById(grievanceId).get();
-
-        if(grievance==null|| grievance.getUserEmail()!=userEmail){
-            String message= "No grievance record found";
+        Grievance grievance = grievanceRepository.findById(grievanceId).get();
+        String registeredUserEmail = grievance.getUserEmail();
+        if (!registeredUserEmail.equals(userEmail)) {
+            String message = "No grievance record found";
             log.warn(message);
             throw new GrievanceNotFoundException(message);
         }
-        grievance.setComplaintDescription(grievancerequest.getComplaintDescription() == null || grievancerequest.getComplaintDescription().length()==0
-        ? grievance.getComplaintDescription(): grievancerequest.getComplaintDescription());
+        grievance.setComplaintDescription(grievancerequest.getComplaintDescription() == null || grievancerequest.getComplaintDescription().length() == 0
+                ? grievance.getComplaintDescription() : grievancerequest.getComplaintDescription());
 
-        grievance.setComplaintTitle(grievancerequest.getComplaintTitle() == null || grievancerequest.getComplaintTitle().length()==0
-                ? grievance.getComplaintTitle(): grievancerequest.getComplaintTitle());
+        grievance.setComplaintTitle(grievancerequest.getComplaintTitle() == null || grievancerequest.getComplaintTitle().length() == 0
+                ? grievance.getComplaintTitle() : grievancerequest.getComplaintTitle());
 
 //        grievance.setAddress(grievancerequest.getAddress() == null ? grievance.getAddress(): grievancerequest.getAddress());
 
         grievance.setLastUpdate(LocalDate.now());
-       try{
-           grievanceRepository.save(grievance);
-       } catch (Exception e) {
-           String message= "Can not update, recheck record.";
-           log.error(message, e.getMessage());
-           throw new DatabaseConstraintVoilation(message+e.getMessage());
-       }
-       String message= "Complaint record updated";
-       log.info(message);
-       return message;
+        try {
+            grievanceRepository.save(grievance);
+        } catch (Exception e) {
+            String message = "Can not update, recheck record.";
+            log.error(message, e.getMessage());
+            throw new DatabaseConstraintVoilation(message + e.getMessage());
+        }
+        String message = "Complaint record updated";
+        log.info(message);
+        return message;
     }
 
-    public String updatePriority(Priority priority, long grievanceId) throws GrievanceNotFoundException, DatabaseConstraintVoilation {
+    public String updatePriority(Priority priority, long grievanceId, String grievanceType) throws GrievanceNotFoundException, DatabaseConstraintVoilation {
 
-        Grievance grievance= grievanceRepository.findById(grievanceId).get();
+        Grievance grievance = grievanceRepository.findById(grievanceId).get();
 
-        if(grievance==null){
-            String message= "No grievance record found";
+        if (grievance == null || !grievance.getGrievanceType().toString().equals(grievanceType)) {
+            String message = "No grievance record found";
             log.warn(message);
             throw new GrievanceNotFoundException(message);
         }
@@ -211,24 +217,24 @@ public class GrievanceService {
         grievance.setPriority(priority);
         grievance.setLastUpdate(LocalDate.now());
 
-        try{
+        try {
             grievanceRepository.save(grievance);
         } catch (Exception e) {
-            String message= "Can not update, recheck record.";
+            String message = "Can not update, recheck record.";
             log.error(message, e.getMessage());
-            throw new DatabaseConstraintVoilation(message+e.getMessage());
+            throw new DatabaseConstraintVoilation(message + e.getMessage());
         }
-        String message= "Complaint Priority updated";
+        String message = "Complaint Priority updated";
         log.info(message);
         return message;
     }
 
-    public String updateStatus(Status status, long grievanceId) throws GrievanceNotFoundException, DatabaseConstraintVoilation {
+    public String updateStatus(Status status, long grievanceId, String grievanceType) throws GrievanceNotFoundException, DatabaseConstraintVoilation {
 
-        Grievance grievance= grievanceRepository.findById(grievanceId).get();
+        Grievance grievance = grievanceRepository.findById(grievanceId).get();
 
-        if(grievance==null){
-            String message= "No grievance record found";
+        if (grievance == null || !grievance.getGrievanceType().toString().equals(grievanceType)) {
+            String message = "No grievance record found";
             log.warn(message);
             throw new GrievanceNotFoundException(message);
         }
@@ -236,14 +242,14 @@ public class GrievanceService {
         grievance.setStatus(status);
         grievance.setLastUpdate(LocalDate.now());
 
-        try{
+        try {
             grievanceRepository.save(grievance);
         } catch (Exception e) {
-            String message= "Can not update, recheck record.";
+            String message = "Can not update, recheck record.";
             log.error(message, e.getMessage());
-            throw new DatabaseConstraintVoilation(message+e.getMessage());
+            throw new DatabaseConstraintVoilation(message + e.getMessage());
         }
-        String message= "Complaint Status updated";
+        String message = "Complaint Status updated";
         log.info(message);
         return message;
     }

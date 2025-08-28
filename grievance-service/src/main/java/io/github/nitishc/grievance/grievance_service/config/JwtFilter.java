@@ -41,10 +41,14 @@ public class JwtFilter extends OncePerRequestFilter {
             String userEmail= claims.get("sub", String.class);
             String role= claims.get("role", String.class);
 
+
             String department= claims.get("department", String.class);
 
             SimpleGrantedAuthority authority= new SimpleGrantedAuthority(role);
-            UsernamePasswordAuthenticationToken auth= new UsernamePasswordAuthenticationToken(userEmail, null, List.of(new SimpleGrantedAuthority(role), new SimpleGrantedAuthority(department)));
+            UsernamePasswordAuthenticationToken auth= new UsernamePasswordAuthenticationToken(
+                    userEmail, null, List.of(authority));
+
+            auth.setDetails(claims);
             SecurityContextHolder.getContext().setAuthentication(auth);
         }catch (Exception e){
             throw new RuntimeException("Invalid token");
