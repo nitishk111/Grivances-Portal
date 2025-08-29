@@ -33,27 +33,27 @@ public class JwtFilter extends OncePerRequestFilter {
 
         String authorizationHeader = request.getHeader("Authorization");
         String jwtoken = null;
+        if (authorizationHeader != null) {
+            try {
+                jwtoken = authorizationHeader.substring(7);
+                jwtUtil.isTokenExpired(jwtoken);
+                Claims claims = jwtUtil.extractAllClaims(jwtoken);
+                String userEmail = claims.get("sub", String.class);
+                String role = claims.get("role", String.class);
 
-        try{
-            jwtoken = authorizationHeader.substring(7);
-            jwtUtil.isTokenExpired(jwtoken);
-            Claims claims = jwtUtil.extractAllClaims(jwtoken);
-            String userEmail= claims.get("sub", String.class);
-            String role= claims.get("role", String.class);
 
+                String department = claims.get("department", String.class);
 
-            String department= claims.get("department", String.class);
+                SimpleGrantedAuthority authority = new SimpleGrantedAuthority(role);
+                UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                        userEmail, null, List.of(authority));
 
-            SimpleGrantedAuthority authority= new SimpleGrantedAuthority(role);
-            UsernamePasswordAuthenticationToken auth= new UsernamePasswordAuthenticationToken(
-                    userEmail, null, List.of(authority));
-
-            auth.setDetails(claims);
-            SecurityContextHolder.getContext().setAuthentication(auth);
-        }catch (Exception e){
-            throw new RuntimeException("Invalid token");
+                auth.setDetails(claims);
+                SecurityContextHolder.getContext().setAuthentication(auth);
+            } catch (Exception e) {
+                throw new RuntimeException("Invalid token");
+            }
         }
-
         filterChain.doFilter(request, response);
     }
 

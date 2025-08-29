@@ -8,8 +8,8 @@ spring:
         - id: user-service
           uri: lb://USER-SERVICE
           predicates:
-            - Path=/user/**,/login,/admin/**,/sign-up,/officer-login
+            - Path=/user/**,/login,/admin/**,/sign-up,/officer-login,/logout
         - id: grievance-service
           uri: lb://GRIEVANCE-SERVICE
           predicates:
-            - Path=/grievances/**,/officer/**
+            - Path=/grievances/**,/officer/**,/admin-grievance/**,/officer-grievance/**

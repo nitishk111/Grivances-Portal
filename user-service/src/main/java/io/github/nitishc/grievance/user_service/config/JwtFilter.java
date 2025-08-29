@@ -23,6 +23,8 @@ public class JwtFilter extends OncePerRequestFilter {
     UserDetailsService userDetailsService;
     @Autowired
     JwtUtil jwtUtil;
+    @Autowired
+    RedisConfig redisConfig;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
@@ -36,6 +38,18 @@ public class JwtFilter extends OncePerRequestFilter {
             jwtoken = authorizationHeader.substring(7);
             jwtUtil.isTokenExpired(jwtoken);
             userEmail = jwtUtil.extractUserEmail(jwtoken);
+
+            if(request.getPathInfo().equals("/logout")){
+                redisConfig.setValue(userEmail, jwtoken);
+                filterChain.doFilter(request,response);
+                return;
+            }
+
+            if(redisConfig.getValue(userEmail).equals(jwtoken)){
+                filterChain.doFilter(request,response);
+                return;
+            }
+
         }
         if (userEmail != null) {
 

@@ -25,10 +25,11 @@ public class SecurityConfiguration {
 
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/officer").hasAuthority("ROLE_OFFICER")
-                        .requestMatchers("/user").hasAuthority("ROLE_CITIZEN")
-                        .requestMatchers("/admin").hasRole("ADMIN") //hasRole adds ROLE_ prefix
-                        .anyRequest().authenticated())
+                        .requestMatchers("/file/**", "/actuator", "/actuator/**").permitAll()
+                        .requestMatchers("/officer/**").hasAuthority("ROLE_OFFICER")
+                        .requestMatchers("/grievances/**").hasAuthority("ROLE_CITIZEN")
+                        .requestMatchers("/admin-grievances/**").hasRole("ADMIN") //hasRole adds ROLE_ prefix
+                        .anyRequest().permitAll())
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

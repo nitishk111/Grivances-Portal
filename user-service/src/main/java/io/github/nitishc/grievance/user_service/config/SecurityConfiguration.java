@@ -30,21 +30,13 @@ public class SecurityConfiguration {
 
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/login", "/sign-up", "/officer-login").permitAll()
-                        .requestMatchers("/user").hasAuthority("ROLE_CITIZEN")
-                        .requestMatchers("/admin").hasRole("ADMIN") //hasRole adds ROLE_ prefix
+                        .requestMatchers("/login", "/sign-up", "/officer-login", "/actuator/**").permitAll()
+                        .requestMatchers("/user/**").hasAuthority("ROLE_CITIZEN")
+                        .requestMatchers("/admin/**").hasRole("ADMIN") //hasRole adds ROLE_ prefix
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
-
-//        http.httpBasic(Customizer.withDefaults());
-//                .formLogin(Customizer.withDefaults());
         return http.build();
     }
-
-//    @Autowired
-//    public void configureGlobal(AuthenticationManagerBuilder authentication) throws Exception {
-//        authentication.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
-//    }
 
     @Bean
     public PasswordEncoder passwordEncoder(){

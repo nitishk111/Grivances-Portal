@@ -36,8 +36,7 @@ public class Grievance {
     private String complaintDescription;
 
     @JsonIgnore
-    @OneToOne(mappedBy = "grievance")
-    @JoinColumn(nullable = false)
+    @OneToOne(mappedBy = "grievance", fetch = FetchType.EAGER)
     private Address address;
 
     @Enumerated(EnumType.STRING)
@@ -56,7 +55,11 @@ public class Grievance {
     private LocalDate lastUpdate = LocalDate.now();
 
     @JsonIgnore
-    @OneToMany(mappedBy = "grievance")
+    @OneToMany(mappedBy = "grievance", fetch = FetchType.EAGER)
     private List<Comment> comments = new ArrayList<>();
+
+    @JsonIgnore
+    @OneToOne(fetch = FetchType.EAGER)
+    private GrievanceFile grievanceFile;
 
 }

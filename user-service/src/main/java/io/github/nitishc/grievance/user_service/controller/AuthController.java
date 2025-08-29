@@ -1,12 +1,14 @@
 package io.github.nitishc.grievance.user_service.controller;
 
 import io.github.nitishc.grievance.user_service.config.JwtUtil;
+import io.github.nitishc.grievance.user_service.dto.EmailDto;
 import io.github.nitishc.grievance.user_service.dto.UserLoginRequest;
 import io.github.nitishc.grievance.user_service.dto.UserResponse;
 import io.github.nitishc.grievance.user_service.dto.UserSignupRequest;
 import io.github.nitishc.grievance.user_service.exception.UserNotSavedException;
 import io.github.nitishc.grievance.user_service.model.User;
 import io.github.nitishc.grievance.user_service.service.CustomOfficerDetails;
+import io.github.nitishc.grievance.user_service.service.EmailService;
 import io.github.nitishc.grievance.user_service.service.UserService;
 import io.github.nitishc.grievance.user_service.util.ResponseInfo;
 import jakarta.servlet.http.HttpServletRequest;
@@ -36,11 +38,13 @@ public class AuthController {
     @Autowired
     private  UserService userService;
     @Autowired
-    AuthenticationManager authenticationManager;
+    private AuthenticationManager authenticationManager;
     @Autowired
-    JwtUtil jwtUtil;
+    private JwtUtil jwtUtil;
     @Autowired
-    UserDetailsService userDetailsService;
+    private UserDetailsService userDetailsService;
+    @Autowired
+    private EmailService emailService;
 
     @PostMapping("/officer-login")
     public ResponseEntity<ResponseInfo<String>> OfficerLogin(@RequestBody UserLoginRequest officerDto, HttpServletRequest request) {
@@ -95,6 +99,9 @@ public class AuthController {
 
             ResponseInfo<String> loginSuccessful = new ResponseInfo<>(HttpStatus.ACCEPTED.value(), HttpStatus.ACCEPTED.name(),
                     token, request.getRequestURI());
+
+            emailService.sendEmail(new EmailDto(userDto.getEmail(),"Login Successful","Someone logged in to your account"));
+
             return new ResponseEntity<>(loginSuccessful, HttpStatus.ACCEPTED);
         } catch (Exception e) {
             ResponseInfo<String> loginSuccessful = new ResponseInfo<>(HttpStatus.ACCEPTED.value(), HttpStatus.ACCEPTED.name(),
